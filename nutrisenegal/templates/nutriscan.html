@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriScan — Dépistage Nutritionnel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .result.vert {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+        
+        .result.orange {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+        }
+        
+        .result.rouge {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+        
+        .result h3 {
+            margin-bottom: 10px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 NutriScan</h1>
+        <p class="subtitle">Dépistage communautaire assisté par IA</p>
+        
+        <div class="info">
+            <strong>👨‍⚕️ Pour agents de santé:</strong> Saisissez les mesures de l'enfant. L'algorithme OMS calcule le risque nutritionnel.
+        </div>
+        
+        <form id="formNutriScan">
+            <div class="form-group">
+                <label for="prenom">Prénom de l'enfant *</label>
+                <input type="text" id="prenom" name="prenom" required placeholder="Ex: Marie">
+            </div>
+            
+            <div class="form-group">
+                <label for="age_mois">Âge (mois) *</label>
+                <input type="number" id="age_mois" name="age_mois" min="0" max="60" required placeholder="Ex: 18">
+            </div>
+            
+            <div class="form-group">
+                <label for="region">Région *</label>
+                <select id="region" name="region" required>
+                    <option value="">-- Sélectionner région --</option>
+                    <option value="Dakar">Dakar</option>
+                    <option value="Thies">Thiès</option>
+                    <option value="Diourbel">Diourbel</option>
+                    <option value="Tambacounda">Tambacounda</option>
+                    <option value="Matam">Matam</option>
+                    <option value="Kolda">Kolda</option>
+                    <option value="Kaolack">Kaolack</option>
+                    <option value="Saint-Louis">Saint-Louis</option>
+                    <option value="Louga">Louga</option>
+                    <option value="Fatick">Fatick</option>
+                    <option value="Ziguinchor">Ziguinchor</option>
+                    <option value="Kedougou">Kédougou</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="poids_kg">Poids (kg) *</label>
+                <input type="number" id="poids_kg" name="poids_kg" step="0.1" min="1" max="50" required placeholder="Ex: 9.5">
+            </div>
+            
+            <div class="form-group">
+                <label for="taille_cm">Taille (cm) *</label>
+                <input type="number" id="taille_cm" name="taille_cm" step="0.1" min="30" max="120" required placeholder="Ex: 76">
+            </div>
+            
+            <div class="form-group">
+                <label for="perimetre_brachial">Périmètre brachial (cm) - Optionnel</label>
+                <input type="number" id="perimetre_brachial" name="perimetre_brachial" step="0.1" placeholder="Ex: 12.5">
+            </div>
+            
+            <div class="form-group">
+                <label for="agent_nom">Nom de l'agent</label>
+                <input type="text" id="agent_nom" name="agent_nom" placeholder="Votre nom">
+            </div>
+            
+            <button type="submit">Analyser l'enfant 🔍</button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Calcul en cours...</p>
+        </div>
+        
+        <div class="result" id="result">
+            <h3 id="result-title"></h3>
+            <p id="result-message"></p>
+            <p id="result-details"></p>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('formNutriScan').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                prenom: document.getElementById('prenom').value,
+                age_mois: parseInt(document.getElementById('age_mois').value),
+                region: document.getElementById('region').value,
+                poids_kg: parseFloat(document.getElementById('poids_kg').value),
+                taille_cm: parseFloat(document.getElementById('taille_cm').value),
+                perimetre_brachial: document.getElementById('perimetre_brachial').value ? 
+                    parseFloat(document.getElementById('perimetre_brachial').value) : null,
+                agent_nom: document.getElementById('agent_nom').value || null,
+                agent_zone: null
+            };
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/nutriscan/enregistrer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                document.getElementById('loading').style.display = 'none';
+                
+                if (result.succes) {
+                    const resultEl = document.getElementById('result');
+                    const scoreClass = result.score.toLowerCase();
+                    
+                    resultEl.className = `result ${scoreClass}`;
+                    document.getElementById('result-title').textContent = `${result.score}: ${result.message}`;
+                    document.getElementById('result-message').textContent = `IMC: ${result.imc}`;
+                    document.getElementById('result-details').innerHTML = `
+                        <strong>Enfant:</strong> ${data.prenom} (${data.age_mois}m)<br>
+                        <strong>Région:</strong> ${data.region}<br>
+                        <strong>ID:</strong> ${result.enfant_id}
+                        ${result.sms_envoye ? '<br><strong>✅ Alerte SMS envoyée au centre de santé</strong>' : ''}
+                    `;
+                    
+                    resultEl.style.display = 'block';
+                } else {
+                    alert('Erreur: ' + result.erreur);
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                alert('Erreur serveur: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

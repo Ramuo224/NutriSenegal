@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MaliMap — Carte Nutritionnelle en Temps Réel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        #map {
+            height: 600px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+        
+        .region-item {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 4px solid;
+        }
+        
+        .region-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .region-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .region-score {
+            font-size: 1.1em;
+            margin: 5px 0;
+        }
+        
+        .region-cas {
+            font-size: 0.85em;
+            color: #666;
+        }
+        
+        .critque { border-left-color: #d62728; background: #f8d7da; }
+        .critique { border-left-color: #d62728; background: #f8d7da; }
+        .eleve { border-left-color: #ff7f0e; background: #fff3cd; }
+        .modere { border-left-color: #ffdd57; background: #fff8dc; }
+        .bas { border-left-color: #2ca02c; background: #d4edda; }
+        
+        .legend {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .color-critique { background: #d62728; }
+        .color-eleve { background: #ff7f0e; }
+        .color-modere { background: #ffdd57; }
+        .color-bas { background: #2ca02c; }
+        
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            #map {
+                height: 400px;
+            }
+            
+            .sidebar {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🗺️ MaliMap</h1>
+        <p>Carte de risque nutritionnel en temps réel au Sénégal</p>
+    </header>
+    
+    <div class="content">
+        <div id="map"></div>
+        
+        <div class="sidebar">
+            <h3>Régions — Risque</h3>
+            <div id="regions-list"></div>
+            
+            <div class="legend">
+                <strong>Niveaux de risque:</strong>
+                <div class="legend-item">
+                    <div class="legend-color color-critique"></div>
+                    <span>Critique (>70)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color color-eleve"></div>
+                    <span>Élevé (50-70)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color color-modere"></div>
+                    <span>Modéré (30-50)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color color-bas"></div>
+                    <span>Bas (<30)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script>
+        // Initialiser carte Leaflet
+        const map = L.map('map').setView([14.5, -14.5], 6);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Charger données régions
+        async function chargerRegions() {
+            try {
+                const response = await fetch('/api/malimap/regions');
+                const regions = await response.json();
+                
+                // Afficher dans sidebar
+                const regionsList = document.getElementById('regions-list');
+                regionsList.innerHTML = '';
+                
+                // Ajouter marqueurs sur carte
+                regions.forEach(region => {
+                    // Déterminer la classe CSS et couleur
+                    const className = region.niveau === 'CRITIQUE' ? 'critique' : 
+                                     region.niveau === 'ÉLEVÉ' ? 'eleve' : 
+                                     region.niveau === 'MODÉRÉ' ? 'modere' : 'bas';
+                    
+                    const color = region.niveau === 'CRITIQUE' ? '#d62728' : 
+                                 region.niveau === 'ÉLEVÉ' ? '#ff7f0e' : 
+                                 region.niveau === 'MODÉRÉ' ? '#ffdd57' : '#2ca02c';
+                    
+                    // Ajouter dans sidebar
+                    const regionEl = document.createElement('div');
+                    regionEl.className = `region-item ${className}`;
+                    regionEl.innerHTML = `
+                        <div class="region-name">${region.nom}</div>
+                        <div class="region-score">Score: ${region.score}</div>
+                        <div class="region-cas">Cas 30j: ${region.cas_30j}</div>
+                    `;
+                    regionsList.appendChild(regionEl);
+                    
+                    // Ajouter marqueur sur carte
+                    L.circleMarker([region.lat, region.lon], {
+                        radius: 15,
+                        fillColor: color,
+                        color: '#000',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).bindPopup(`
+                        <strong>${region.nom}</strong><br>
+                        Score: ${region.score}<br>
+                        Niveau: ${region.niveau}<br>
+                        Cas détectés: ${region.cas_30j}
+                    `).addTo(map);
+                });
+                
+            } catch (error) {
+                console.error('Erreur chargement régions:', error);
+            }
+        }
+        
+        chargerRegions();
+        // Rafraîchir toutes les 5 minutes
+        setInterval(chargerRegions, 300000);
+    </script>
+</body>
+</html>

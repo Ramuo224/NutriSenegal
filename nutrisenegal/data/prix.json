@@ -1,0 +1,57 @@
+{
+  "aliments": {
+    "mil": {
+      "prix_fcfa_kg": 200,
+      "saison": "stable",
+      "regions": ["Diourbel", "Tambacounda", "Louga"]
+    },
+    "niebé": {
+      "prix_fcfa_kg": 350,
+      "saison": "stable",
+      "regions": ["Kaolack", "Tambacounda"]
+    },
+    "riz": {
+      "prix_fcfa_kg": 280,
+      "saison": "stable",
+      "regions": ["Dakar", "Thies"]
+    },
+    "arachide": {
+      "prix_fcfa_kg": 400,
+      "saison": "recolte_juillet",
+      "regions": ["Kaolack", "Kolda"]
+    },
+    "feuilles_moringa": {
+      "prix_fcfa_kg": 150,
+      "saison": "toute_annee",
+      "regions": ["Dakar", "Tambacounda"]
+    },
+    "courge": {
+      "prix_fcfa_kg": 120,
+      "saison": "decembre_avril",
+      "regions": ["Saint-Louis", "Diourbel"]
+    },
+    "oignon": {
+      "prix_fcfa_kg": 200,
+      "saison": "stable",
+      "regions": ["Dakar", "Matam"]
+    },
+    "tomate": {
+      "prix_fcfa_kg": 180,
+      "saison": "janvier_avril",
+      "regions": ["Dakar", "Thies"]
+    },
+    "poisson_sec": {
+      "prix_fcfa_kg": 1500,
+      "saison": "stable",
+      "regions": ["Saint-Louis", "Dakar"]
+    },
+    "lait_frais": {
+      "prix_fcfa_litre": 280,
+      "saison": "stable",
+      "regions": ["Dakar", "Thies"]
+    }
+  },
+  "indice_prix_moyen": 100,
+  "tendance": "stable",
+  "mise_a_jour": "2026-05-29"
+}

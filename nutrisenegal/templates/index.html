@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriSénégal — Plateforme Nutrition Infantile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 50px;
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            gap: 20px;
+        }
+        
+        .stat-box {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        .modules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .module {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .module:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .module-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .module-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .module-desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p {
+            color: #666;
+            font-size: 0.95em;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #ddd;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 NutriSénégal</h1>
+            <p class="subtitle">Plateforme intégrée contre la malnutrition infantile</p>
+        </header>
+        
+        <div class="stats" id="stats">
+            <div class="stat-box">
+                <div class="stat-number" id="stat-enfants">0</div>
+                <div class="stat-label">Enfants dépistés</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="stat-alertes">0</div>
+                <div class="stat-label">Alertes actives</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="stat-abonnees">0</div>
+                <div class="stat-label">Mères inscrites</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="stat-sms">0</div>
+                <div class="stat-label">SMS envoyés</div>
+            </div>
+        </div>
+        
+        <div class="modules">
+            <a href="/api/nutriscan/formulaire" class="module">
+                <div class="module-icon">🔍</div>
+                <div class="module-name">NutriScan</div>
+                <div class="module-desc">Dépistage communautaire rapide des enfants à risque</div>
+            </a>
+            
+            <a href="/api/mamamenù/formulaire" class="module">
+                <div class="module-icon">🍽️</div>
+                <div class="module-name">MamaMenu</div>
+                <div class="module-desc">Recettes nutritives adaptées par SMS</div>
+            </a>
+            
+            <a href="/malimap" class="module">
+                <div class="module-icon">🗺️</div>
+                <div class="module-name">MaliMap</div>
+                <div class="module-desc">Cartographie des risques nutritionnels en temps réel</div>
+            </a>
+            
+            <a href="/dashboard" class="module">
+                <div class="module-icon">📊</div>
+                <div class="module-name">Dashboard</div>
+                <div class="module-desc">Administration et monitoring</div>
+            </a>
+        </div>
+        
+        <div class="info-box">
+            <h3>📌 À propos du projet</h3>
+            <p>Au Sénégal, 10% des enfants de moins de 5 ans souffrent de malnutrition aiguë. NutriSénégal réunit trois outils complémentaires — dépistage, prévention et cartographie — en un système cohérent conçu pour les réalités sénégalaises : zones rurales mal desservies, connectivité limitée, et ressources insuffisantes.</p>
+        </div>
+        
+        <div class="footer">
+            <p>NutriSénégal v1.0.0 — Hackathon Nutrition 2026</p>
+        </div>
+    </div>
+    
+    <script>
+        // Charger les stats
+        async function chargerStats() {
+            try {
+                const response = await fetch('/api/admin/stats');
+                const stats = await response.json();
+                
+                document.getElementById('stat-enfants').textContent = stats.enfants_depistes;
+                document.getElementById('stat-alertes').textContent = stats.alertes_actives;
+                document.getElementById('stat-abonnees').textContent = stats.abonnees_mamamenù;
+                document.getElementById('stat-sms').textContent = stats.sms_envoyes;
+            } catch (error) {
+                console.error('Erreur chargement stats:', error);
+            }
+        }
+        
+        // Charger stats au chargement
+        chargerStats();
+        // Rafraîchir toutes les 30 secondes
+        setInterval(chargerStats, 30000);
+    </script>
+</body>
+</html>

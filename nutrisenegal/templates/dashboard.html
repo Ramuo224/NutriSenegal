@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin — NutriSénégal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stat-change {
+            font-size: 0.85em;
+            color: #28a745;
+            margin-top: 10px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f0f0f0;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .badge-rouge {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-orange {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-vert {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            color: #856404;
+        }
+        
+        .button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+        
+        .button:hover {
+            background: #764ba2;
+        }
+        
+        .chart {
+            height: 300px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        
+        .refresh-time {
+            text-align: right;
+            color: #999;
+            font-size: 0.85em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>📊 Dashboard Admin — NutriSénégal</h1>
+        <p>Monitoring et statistiques en temps réel</p>
+    </header>
+    
+    <div class="container">
+        <!-- Statistiques principales -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Enfants dépistés</div>
+                <div class="stat-value" id="stat-enfants">0</div>
+                <div class="stat-change">↑ 12 cette semaine</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Alertes actives</div>
+                <div class="stat-value" id="stat-alertes">0</div>
+                <div class="stat-change">↑ 3 à traiter</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Mères inscrites</div>
+                <div class="stat-value" id="stat-abonnees">0</div>
+                <div class="stat-change">↑ 8 nouveaux</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">SMS envoyés</div>
+                <div class="stat-value" id="stat-sms">0</div>
+                <div class="stat-change">Automatisé</div>
+            </div>
+        </div>
+        
+        <!-- Alertes prioritaires -->
+        <div class="section">
+            <h2>🚨 Alertes prioritaires</h2>
+            <div class="alert">
+                <strong>Tambacounda:</strong> Score de risque 72 (CRITIQUE) — Intervention immédiate recommandée
+            </div>
+            <div class="alert">
+                <strong>Diourbel:</strong> Score de risque 58 (ÉLEVÉ) — À surveiller cette semaine
+            </div>
+        </div>
+        
+        <!-- Régions par risque -->
+        <div class="section">
+            <h2>🗺️ Régions — Statut nutritionnel</h2>
+            <table id="regions-table">
+                <thead>
+                    <tr>
+                        <th>Région</th>
+                        <th>Score</th>
+                        <th>Niveau</th>
+                        <th>Cas 30j</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="regions-tbody">
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- SMS récents -->
+        <div class="section">
+            <h2>📱 SMS récents</h2>
+            <table id="sms-table">
+                <thead>
+                    <tr>
+                        <th>Heure</th>
+                        <th>Type</th>
+                        <th>Destination</th>
+                        <th>Message</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody id="sms-tbody">
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Infos système -->
+        <div class="section">
+            <h2>⚙️ Statut système</h2>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Status API</td>
+                        <td><span class="badge badge-vert">✅ En ligne</span></td>
+                    </tr>
+                    <tr>
+                        <td>Base de données</td>
+                        <td><span class="badge badge-vert">✅ Connectée</span></td>
+                    </tr>
+                    <tr>
+                        <td>Scheduler</td>
+                        <td><span class="badge badge-vert">✅ Actif</span></td>
+                    </tr>
+                    <tr>
+                        <td>Twilio (SMS)</td>
+                        <td><span class="badge badge-orange">⚠️ Mode simulation</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="refresh-time">
+            <p>Dernière mise à jour: <span id="last-update"></span></p>
+            <button class="button" onclick="chargerDonnees()">Rafraîchir maintenant</button>
+        </div>
+    </div>
+    
+    <script>
+        async function chargerDonnees() {
+            try {
+                // Charger stats
+                const statsResponse = await fetch('/api/admin/stats');
+                const stats = await statsResponse.json();
+                
+                document.getElementById('stat-enfants').textContent = stats.enfants_depistes;
+                document.getElementById('stat-alertes').textContent = stats.alertes_actives;
+                document.getElementById('stat-abonnees').textContent = stats.abonnees_mamamenù;
+                document.getElementById('stat-sms').textContent = stats.sms_envoyes;
+                
+                // Charger régions
+                const regionsResponse = await fetch('/api/malimap/regions');
+                const regions = await regionsResponse.json();
+                
+                const regionsTbody = document.getElementById('regions-tbody');
+                regionsTbody.innerHTML = '';
+                
+                regions.slice(0, 10).forEach(region => {
+                    const badgeClass = region.niveau === 'CRITIQUE' ? 'badge-rouge' : 
+                                      region.niveau === 'ÉLEVÉ' ? 'badge-orange' : 'badge-vert';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${region.nom}</strong></td>
+                        <td>${region.score}</td>
+                        <td><span class="badge ${badgeClass}">${region.niveau}</span></td>
+                        <td>${region.cas_30j}</td>
+                        <td><a href="/malimap" class="button">Détails</a></td>
+                    `;
+                    regionsTbody.appendChild(row);
+                });
+                
+                // Charger SMS
+                const smsResponse = await fetch('/api/admin/sms-log?limite=10');
+                const smsList = await smsResponse.json();
+                
+                const smsTbody = document.getElementById('sms-tbody');
+                smsTbody.innerHTML = '';
+                
+                smsList.forEach(sms => {
+                    const row = document.createElement('tr');
+                    const date = new Date(sms.timestamp);
+                    const time = date.toLocaleTimeString('fr-FR');
+                    
+                    row.innerHTML = `
+                        <td>${time}</td>
+                        <td>${sms.type}</td>
+                        <td>${sms.to}</td>
+                        <td style="font-size: 0.85em;">${sms.message.substring(0, 40)}...</td>
+                        <td><span class="badge badge-vert">${sms.statut}</span></td>
+                    `;
+                    smsTbody.appendChild(row);
+                });
+                
+                // Mettre à jour heure
+                const now = new Date();
+                document.getElementById('last-update').textContent = 
+                    now.toLocaleTimeString('fr-FR');
+                
+            } catch (error) {
+                console.error('Erreur chargement données:', error);
+            }
+        }
+        
+        // Charger au démarrage
+        chargerDonnees();
+        // Rafraîchir toutes les 30 secondes
+        setInterval(chargerDonnees, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MamaMenu — Recettes Nutritives par SMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+            display: none;
+        }
+        
+        .result h3 {
+            margin-bottom: 15px;
+        }
+        
+        .recipe {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .recipe-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .recipe-nutrients {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .info {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            color: #1565c0;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ MamaMenu</h1>
+        <p class="subtitle">Recettes nutritives adaptées par SMS</p>
+        
+        <div class="info">
+            <strong>👩‍👧 Pour mères de famille:</strong> Inscrivez-vous pour recevoir chaque semaine une recette adaptée à l'âge de votre enfant, en français ou en wolof.
+        </div>
+        
+        <form id="formMamaMenu">
+            <div class="form-group">
+                <label for="telephone">Numéro de téléphone (WhatsApp/SMS) *</label>
+                <input type="tel" id="telephone" name="telephone" required placeholder="+221771234567">
+            </div>
+            
+            <div class="form-group">
+                <label for="prenom">Votre prénom (optionnel)</label>
+                <input type="text" id="prenom" name="prenom" placeholder="Ex: Fatou">
+            </div>
+            
+            <div class="form-group">
+                <label for="age_enfant_mois">Âge de votre enfant (mois) *</label>
+                <input type="number" id="age_enfant_mois" name="age_enfant_mois" min="0" max="60" required placeholder="Ex: 12">
+            </div>
+            
+            <div class="form-group">
+                <label for="region">Votre région *</label>
+                <select id="region" name="region" required>
+                    <option value="">-- Sélectionner région --</option>
+                    <option value="Dakar">Dakar</option>
+                    <option value="Thies">Thiès</option>
+                    <option value="Diourbel">Diourbel</option>
+                    <option value="Tambacounda">Tambacounda</option>
+                    <option value="Matam">Matam</option>
+                    <option value="Kolda">Kolda</option>
+                    <option value="Kaolack">Kaolack</option>
+                    <option value="Saint-Louis">Saint-Louis</option>
+                    <option value="Louga">Louga</option>
+                    <option value="Fatick">Fatick</option>
+                    <option value="Ziguinchor">Ziguinchor</option>
+                    <option value="Kedougou">Kédougou</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="langue">Langue préférée *</label>
+                <select id="langue" name="langue" required>
+                    <option value="fr">Français 🇫🇷</option>
+                    <option value="wo">Wolof 🇸🇳</option>
+                </select>
+            </div>
+            
+            <button type="submit">M'inscrire à MamaMenu ✅</button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Inscription en cours...</p>
+        </div>
+        
+        <div class="result" id="result">
+            <h3>✅ Inscription réussie!</h3>
+            <p id="result-message"></p>
+            <div id="recipe-display"></div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('formMamaMenu').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                telephone: document.getElementById('telephone').value,
+                age_enfant_mois: parseInt(document.getElementById('age_enfant_mois').value),
+                region: document.getElementById('region').value,
+                langue: document.getElementById('langue').value,
+                prenom: document.getElementById('prenom').value || null
+            };
+            
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/mamamenù/inscrire', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                document.getElementById('loading').style.display = 'none';
+                
+                if (result.succes) {
+                    document.getElementById('result-message').textContent = 
+                        `Bienvenue! Vous recevrez des recettes adaptées à votre enfant (${data.age_enfant_mois} mois) en ${data.langue === 'fr' ? 'français' : 'wolof'}.`;
+                    
+                    // Charger une recette d'exemple
+                    const recipeResponse = await fetch(`/api/mamamenù/recette/${data.age_enfant_mois}?langue=${data.langue}`);
+                    const recipeData = await recipeResponse.json();
+                    
+                    if (recipeData.recette) {
+                        const recipe = recipeData.recette;
+                        document.getElementById('recipe-display').innerHTML = `
+                            <div class="recipe">
+                                <div class="recipe-title">📖 Exemple de recette cette semaine:</div>
+                                <div class="recipe-title">${recipe.nom}</div>
+                                <div class="recipe-nutrients">
+                                    <strong>Ingrédients:</strong> ${recipe.ingredients}<br>
+                                    <strong>Mode:</strong> ${recipe.instructions}<br>
+                                    <strong>Valeur:</strong> ${recipe.kcal}kcal, ${recipe.proteines_g}g protéines, ${recipe.fer_mg}mg fer<br>
+                                    <strong>Prix estimé:</strong> ${recipe.prix_fcfa || 500} FCFA
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    document.getElementById('result').style.display = 'block';
+                } else {
+                    alert('Erreur: ' + result.erreur);
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                alert('Erreur serveur: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

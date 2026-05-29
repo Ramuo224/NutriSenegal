@@ -1,0 +1,101 @@
+[
+  {
+    "nom": "Dakar",
+    "lat": 14.6928,
+    "lon": -17.0469,
+    "densite_medicale": 2.5,
+    "acces_eau_potable": 95,
+    "population": 1200000
+  },
+  {
+    "nom": "Thies",
+    "lat": 14.7919,
+    "lon": -16.9397,
+    "densite_medicale": 0.8,
+    "acces_eau_potable": 75,
+    "population": 580000
+  },
+  {
+    "nom": "Kaolack",
+    "lat": 13.9644,
+    "lon": -15.9281,
+    "densite_medicale": 0.5,
+    "acces_eau_potable": 65,
+    "population": 340000
+  },
+  {
+    "nom": "Tambacounda",
+    "lat": 13.7721,
+    "lon": -13.7743,
+    "densite_medicale": 0.4,
+    "acces_eau_potable": 55,
+    "population": 290000,
+    "critique": true
+  },
+  {
+    "nom": "Kolda",
+    "lat": 13.0581,
+    "lon": -14.9425,
+    "densite_medicale": 0.3,
+    "acces_eau_potable": 50,
+    "population": 310000
+  },
+  {
+    "nom": "Diourbel",
+    "lat": 14.6405,
+    "lon": -15.5535,
+    "densite_medicale": 0.4,
+    "acces_eau_potable": 60,
+    "population": 580000,
+    "critique": true
+  },
+  {
+    "nom": "Matam",
+    "lat": 14.6496,
+    "lon": -13.2407,
+    "densite_medicale": 0.3,
+    "acces_eau_potable": 45,
+    "population": 280000,
+    "critique": true
+  },
+  {
+    "nom": "Saint-Louis",
+    "lat": 16.0255,
+    "lon": -16.4915,
+    "densite_medicale": 0.6,
+    "acces_eau_potable": 70,
+    "population": 290000
+  },
+  {
+    "nom": "Louga",
+    "lat": 15.6196,
+    "lon": -15.6108,
+    "densite_medicale": 0.35,
+    "acces_eau_potable": 58,
+    "population": 340000
+  },
+  {
+    "nom": "Fatick",
+    "lat": 13.5522,
+    "lon": -15.8661,
+    "densite_medicale": 0.4,
+    "acces_eau_potable": 62,
+    "population": 220000
+  },
+  {
+    "nom": "Ziguinchor",
+    "lat": 13.3703,
+    "lon": -15.5577,
+    "densite_medicale": 0.5,
+    "acces_eau_potable": 68,
+    "population": 340000
+  },
+  {
+    "nom": "Kedougou",
+    "lat": 12.5549,
+    "lon": -12.1808,
+    "densite_medicale": 0.25,
+    "acces_eau_potable": 48,
+    "population": 140000
+  }
+]
