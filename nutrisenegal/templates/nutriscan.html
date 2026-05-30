@@ -13,65 +13,68 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0066CC 0%, #0052A3 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
         }
         
         .container {
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 102, 204, 0.2);
             max-width: 500px;
-            margin: 40px auto;
-            padding: 40px;
+            margin: 30px auto;
+            padding: 30px;
         }
         
         h1 {
-            color: #333;
+            color: #0066CC;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-size: 1.8em;
         }
         
         .subtitle {
             text-align: center;
-            color: #666;
-            margin-bottom: 30px;
+            color: #555;
+            margin-bottom: 25px;
+            font-size: 0.95em;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
         
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #333;
             font-weight: 500;
+            font-size: 0.95em;
         }
         
         input, select {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            padding: 11px;
+            border: 2px solid #E0E0E0;
+            border-radius: 6px;
             font-size: 1em;
             transition: border-color 0.3s;
         }
         
         input:focus, select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #0066CC;
         }
         
         button {
             width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 12px;
+            background: linear-gradient(135deg, #0066CC 0%, #0052A3 100%);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 1.1em;
+            border-radius: 6px;
+            font-size: 1em;
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.3s, box-shadow 0.3s;
@@ -79,50 +82,56 @@
         
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 102, 204, 0.3);
         }
         
         .result {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 10px;
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 8px;
             display: none;
         }
         
         .result.vert {
-            background: #d4edda;
-            border: 2px solid #28a745;
-            color: #155724;
+            background: #E8F5E9;
+            border: 2px solid #28A745;
+            color: #2E7D32;
         }
         
         .result.orange {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            color: #856404;
+            background: #FFF3E0;
+            border: 2px solid #F57C00;
+            color: #E65100;
         }
         
         .result.rouge {
-            background: #f8d7da;
-            border: 2px solid #dc3545;
-            color: #721c24;
+            background: #FFEBEE;
+            border: 2px solid #D32F2F;
+            color: #B71C1C;
         }
         
         .result h3 {
             margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .result p {
+            margin-bottom: 8px;
+            line-height: 1.5;
         }
         
         .loading {
             display: none;
             text-align: center;
-            color: #667eea;
+            color: #0066CC;
         }
         
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 4px solid #F0F0F0;
+            border-top: 4px solid #0066CC;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             animation: spin 1s linear infinite;
             margin: 0 auto 10px;
         }
@@ -133,12 +142,109 @@
         }
         
         .info {
-            background: #e7f3ff;
-            border-left: 4px solid #2196F3;
-            padding: 15px;
-            margin: 20px 0;
+            background: #E3F2FD;
+            border-left: 4px solid #0066CC;
+            padding: 14px;
+            margin: 18px 0;
             border-radius: 5px;
-            color: #1565c0;
+            color: #0052A3;
+            font-size: 0.95em;
+        }
+        
+        .info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 20px auto;
+                border-radius: 10px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+            
+            .subtitle {
+                font-size: 0.9em;
+                margin-bottom: 20px;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            label {
+                font-size: 0.9em;
+            }
+            
+            input, select {
+                padding: 10px;
+                font-size: 0.95em;
+            }
+            
+            button {
+                padding: 11px;
+                font-size: 0.95em;
+            }
+            
+            .result {
+                padding: 15px;
+                font-size: 0.95em;
+            }
+            
+            .result h3 {
+                font-size: 1em;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 18px;
+                margin: 15px auto;
+            }
+            
+            h1 {
+                font-size: 1.3em;
+            }
+            
+            .subtitle {
+                font-size: 0.85em;
+            }
+            
+            .form-group {
+                margin-bottom: 12px;
+            }
+            
+            label {
+                font-size: 0.85em;
+            }
+            
+            input, select {
+                padding: 9px;
+                font-size: 0.9em;
+            }
+            
+            button {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+            
+            .result {
+                padding: 12px;
+                font-size: 0.9em;
+            }
+            
+            .result p {
+                margin-bottom: 6px;
+            }
         }
     </style>
 </head>

@@ -1,10 +1,10 @@
 """
 MaliMap — Carte de risque nutritionnel en temps réel
-Module pour agrégation données et scoring régional (Version Spéciale Démo Hackathon)
+Module pour agrégation données et scoring régional (Version Spéciale Démo Hackathon - Sénégal)
 """
 
 from typing import Dict, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 from db import get_connection
 
 def calculer_score_risque(region: str, data: Dict) -> float:
@@ -42,24 +42,39 @@ def maj_donnees_region(region: str) -> Dict:
     except Exception:
         cas_30j = 0
     
-    # --- CONFIGURATION DE DONNÉES DE DÉMO PAS EN DUR ---
-    # Pour que chaque région ait une vraie couleur différente au départ (Pitch réaliste)
-    config_regions = {
-        "Matam": {"pluie": 80, "prix": 75, "eau": 30},
-        "Diourbel": {"pluie": 70, "prix": 85, "eau": 40},
-        "Tambacounda": {"pluie": 65, "prix": 60, "eau": 35},
-        "Saint-Louis": {"pluie": 40, "prix": 50, "eau": 60},
-        "Dakar": {"pluie": 10, "prix": 30, "eau": 90},
-        "Thiès": {"pluie": 20, "prix": 35, "eau": 80}
+    # --- TA CONFIGURATION DE DONNÉES JSON INTÉGRÉE ---
+    config_brute = {
+        "Dakar": {"densite": 2.5, "eau": 95, "critique": False},
+        "Thiès": {"densite": 0.8, "eau": 75, "critique": False},
+        "Thies": {"densite": 0.8, "eau": 75, "critique": False},  # Sécurité doublon accent
+        "Kaolack": {"densite": 0.5, "eau": 65, "critique": False},
+        "Tambacounda": {"densite": 0.4, "eau": 55, "critique": True},
+        "Kolda": {"densite": 0.3, "eau": 50, "critique": False},
+        "Diourbel": {"densite": 0.4, "eau": 60, "critique": True},
+        "Matam": {"densite": 0.3, "eau": 45, "critique": True},
+        "Saint-Louis": {"densite": 0.6, "eau": 70, "critique": False},
+        "Louga": {"densite": 0.35, "eau": 58, "critique": False},
+        "Fatick": {"densite": 0.4, "eau": 62, "critique": False},
+        "Ziguinchor": {"densite": 0.5, "eau": 68, "critique": False},
+        "Kedougou": {"densite": 0.25, "eau": 48, "critique": False}
     }
     
-    reg_config = config_regions.get(region, {"pluie": 35, "prix": 40, "eau": 55})
+    reg_config = config_brute.get(region, {"densite": 0.4, "eau": 60, "critique": False})
     
+    # Si la région est marquée critique=True dans ton JSON, on simule des risques initiaux.
+    # Sinon, le risque de base reste à 0 pour laisser la région au vert.
+    if reg_config["critique"]:
+        pluie_def = 75.0
+        prix_hausse = 80.0
+    else:
+        pluie_def = 0.0
+        prix_hausse = 0.0
+        
     data = {
-        'pluie_deficit': reg_config["pluie"], 
-        'prix_alimentaires_hausse': reg_config["prix"],
+        'pluie_deficit': pluie_def, 
+        'prix_alimentaires_hausse': prix_hausse,
         'cas_nutriscan_30j': cas_30j,
-        'densite_medicale': 0.4,
+        'densite_medicale': reg_config["densite"],
         'acces_eau_potable': reg_config["eau"]
     }
     
@@ -88,24 +103,29 @@ def maj_donnees_region(region: str) -> Dict:
     }
 
 def obtenir_regions_par_risque() -> List[Dict]:
-    """Obtenir toutes les régions (Calcule à la volée pour assurer le dynamisme)."""
-    # Liste des régions du Sénégal définies dans votre projet
-    liste_regions = ["Dakar", "Diourbel", "Fatick", "Kaolack", "Kaffrine", "Kedougou", 
-                     "Kolda", "Louga", "Matam", "Podor", "Saint-Louis", "Sedhiou", 
-                     "Tambacounda", "Thiès", "Ziguinchor"]
+    """Obtenir toutes les régions configurées avec leurs données dynamiques."""
+    liste_regions = ["Dakar", "Thiès", "Kaolack", "Tambacounda", "Kolda", "Diourbel", 
+                     "Matam", "Saint-Louis", "Louga", "Fatick", "Ziguinchor", "Kedougou"]
     
-    regions = []
-    # Coordonnées approximatives pour le centrage des points sur la carte
+    # Coordonnées géographiques précises issues de ton JSON
     coords = {
-        "Dakar": [14.7167, -17.4677], "Diourbel": [14.6500, -16.4000], "Fatick": [14.3333, -16.4167],
-        "Kaolack": [14.1833, -16.0833], "Kaffrine": [14.1000, -15.5500], "Kedougou": [12.5500, -12.1833],
-        "Kolda": [12.8833, -14.9500], "Louga": [15.6167, -16.2167], "Matam": [15.6167, -13.2500],
-        "Saint-Louis": [16.0167, -16.5000], "Sedhiou": [12.7083, -15.5569], "Tambacounda": [13.7667, -13.6667],
-        "Thiès": [14.7833, -16.9167], "Ziguinchor": [12.5833, -16.2667]
+        "Dakar": [14.6928, -17.0469], 
+        "Thiès": [14.7919, -16.9397], 
+        "Thies": [14.7919, -16.9397],
+        "Kaolack": [13.9644, -15.9281], 
+        "Tambacounda": [13.7721, -13.7743], 
+        "Kolda": [13.0581, -14.9425], 
+        "Diourbel": [14.6405, -15.5535], 
+        "Matam": [14.6496, -13.2407], 
+        "Saint-Louis": [16.0255, -16.4915], 
+        "Louga": [15.6196, -15.6108], 
+        "Fatick": [13.5522, -15.8661], 
+        "Ziguinchor": [13.3703, -15.5577], 
+        "Kedougou": [12.5549, -12.1808]
     }
     
+    regions = []
     for nom_reg in liste_regions:
-        # Met à jour et récupère le score calculé dynamiquement
         res = maj_donnees_region(nom_reg)
         loc = coords.get(nom_reg, [14.0, -14.0])
         
@@ -150,7 +170,7 @@ def generer_alerte_decision(region: str, score: float) -> Dict:
     }
 
 def generer_geojson_carte(regions: List[Dict]) -> Dict:
-    """Générer GeoJSON pour rendu complet."""
+    """Générer GeoJSON pour rendu complet sur l'interface graphique."""
     features = []
     for region in regions:
         color_map = {
