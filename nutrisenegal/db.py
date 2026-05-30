@@ -3,7 +3,8 @@ import os
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
-DB_PATH = "nutrisenegal.db"
+# Utiliser un chemin absolu pour la base de données (compatible Render)
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nutrisenegal.db")
 
 def init_db():
     """Initialiser la base de données SQLite avec les 4 tables principales."""

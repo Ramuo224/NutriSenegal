@@ -50,12 +50,16 @@ async def startup_event():
     # Créer/initialiser BDD
     init_db()
     
-    # Charger données
-    with open("data/recettes.json", "r", encoding="utf-8") as f:
+    # Charger données (chemins compatibles avec Render)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    recettes_path = os.path.join(base_dir, "data", "recettes.json")
+    with open(recettes_path, "r", encoding="utf-8") as f:
         recettes = json.load(f)
         charger_recettes_depuis_json(recettes)
     
-    with open("data/regions.json", "r", encoding="utf-8") as f:
+    regions_path = os.path.join(base_dir, "data", "regions.json")
+    with open(regions_path, "r", encoding="utf-8") as f:
         regions = json.load(f)
         charger_regions_depuis_json(regions)
     
@@ -92,7 +96,9 @@ class InscriptionMere(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 async def page_accueil():
     """Page d'accueil NutriSénégal."""
-    with open("templates/index.html", "r", encoding="utf-8") as f:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    template_path = os.path.join(base_dir, "templates", "index.html")
+    with open(template_path, "r", encoding="utf-8") as f:
         return f.read()
 
 @app.get("/health")
@@ -137,7 +143,9 @@ async def api_nutriscan_enregistrer(enfant: EnfantSaisie):
 @app.get("/api/nutriscan/formulaire", response_class=HTMLResponse)
 async def formulaire_nutriscan():
     """Formulaire HTML pour saisir enfant."""
-    with open("templates/nutriscan.html", "r", encoding="utf-8") as f:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    template_path = os.path.join(base_dir, "templates", "nutriscan.html")
+    with open(template_path, "r", encoding="utf-8") as f:
         return f.read()
 
 # ============================================================================
@@ -196,7 +204,9 @@ async def api_mamamenù_recette(age_mois: int, langue: str = "fr"):
 @app.get("/api/mamamenù/formulaire", response_class=HTMLResponse)
 async def formulaire_mamamenù():
     """Formulaire HTML pour inscription MamaMenu."""
-    with open("templates/mamamenù.html", "r", encoding="utf-8") as f:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    template_path = os.path.join(base_dir, "templates", "mamamenù.html")
+    with open(template_path, "r", encoding="utf-8") as f:
         return f.read()
 
 # ============================================================================
@@ -223,7 +233,9 @@ async def api_malimap_region(nom_region: str):
 @app.get("/malimap", response_class=HTMLResponse)
 async def page_malimap():
     """Page interactive MaliMap."""
-    with open("templates/malimap.html", "r", encoding="utf-8") as f:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    template_path = os.path.join(base_dir, "templates", "malimap.html")
+    with open(template_path, "r", encoding="utf-8") as f:
         return f.read()
 
 # ============================================================================
@@ -274,7 +286,9 @@ async def api_admin_stats():
 @app.get("/dashboard", response_class=HTMLResponse)
 async def page_dashboard():
     """Dashboard admin."""
-    with open("templates/dashboard.html", "r", encoding="utf-8") as f:
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    template_path = os.path.join(base_dir, "templates", "dashboard.html")
+    with open(template_path, "r", encoding="utf-8") as f:
         return f.read()
 
 # ============================================================================
