@@ -130,6 +130,16 @@
             color: #E65100;
         }
         
+        .badge-modere {
+            background: #FFF8E1;
+            color: #F57C00;
+        }
+        
+        .badge-bas {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+        
         .badge-vert {
             background: #E8F5E9;
             color: #2E7D32;
@@ -143,7 +153,46 @@
             margin: 15px 0;
             color: #E65100;
         }
-        
+
+        .alerte-item {
+            background: #FFF7F0;
+            border-left: 5px solid #D84315;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .alerte-item strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #B71C1C;
+        }
+
+        .alerte-meta {
+            font-size: 0.9em;
+            color: #444;
+            margin-bottom: 3px;
+        }
+
+        .alerte-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 0.8em;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        .badge-resolue {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .badge-en-cours {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+
         .button {
             display: inline-block;
             background: #0066CC;
@@ -294,17 +343,37 @@
             </div>
         </div>
         
-        <!-- Alertes prioritaires -->
+        <!-- Alertes prioritaires dynamiques -->
         <div class="section">
             <h2>🚨 Alertes prioritaires</h2>
-            <div class="alert">
-                <strong>Tambacounda:</strong> Score de risque 72 (CRITIQUE) — Intervention immédiate recommandée
-            </div>
-            <div class="alert">
-                <strong>Diourbel:</strong> Score de risque 58 (ÉLEVÉ) — À surveiller cette semaine
-            </div>
+            <div id="priorite-alertes"></div>
         </div>
-        
+
+        <!-- Alertes actives -->
+        <div class="section">
+            <h2>⚠️ Alertes actives</h2>
+            <div id="alertes-actives-list"></div>
+        </div>
+
+        <!-- Historique des alertes -->
+        <div class="section">
+            <h2>📜 Historique des alertes</h2>
+            <table id="historique-table">
+                <thead>
+                    <tr>
+                        <th>Enfant</th>
+                        <th>Région</th>
+                        <th>Score</th>
+                        <th>Statut</th>
+                        <th>Créée</th>
+                        <th>Résolue</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="historique-tbody"></tbody>
+            </table>
+        </div>
+
         <!-- Régions par risque -->
         <div class="section">
             <h2>🗺️ Régions — Statut nutritionnel</h2>
@@ -393,7 +462,8 @@
                 
                 regions.slice(0, 10).forEach(region => {
                     const badgeClass = region.niveau === 'CRITIQUE' ? 'badge-rouge' : 
-                                      region.niveau === 'ÉLEVÉ' ? 'badge-orange' : 'badge-vert';
+                                      region.niveau === 'ÉLEVÉ' ? 'badge-orange' : 
+                                      region.niveau === 'MODÉRÉ' ? 'badge-modere' : 'badge-bas';
                     
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -405,7 +475,111 @@
                     `;
                     regionsTbody.appendChild(row);
                 });
-                
+
+                // Priorités dynamiques
+                const prioriteContainer = document.getElementById('priorite-alertes');
+                prioriteContainer.innerHTML = '';
+                const topRegions = regions.slice(0, 3);
+                if (topRegions.length === 0) {
+                    prioriteContainer.innerHTML = '<div class="alert">Aucune région prioritaire pour le moment.</div>';
+                } else {
+                    topRegions.forEach(region => {
+                        const niveau = region.niveau === 'CRITIQUE' ? 'CRITIQUE' : region.niveau === 'ÉLEVÉ' ? 'ÉLEVÉ' : 'MODÉRÉ';
+                        const seuil = region.niveau === 'CRITIQUE' ? 'Intervention immédiate' : region.niveau === 'ÉLEVÉ' ? 'Surveillance renforcée' : 'Analyse continue';
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'alert';
+                        alertDiv.innerHTML = `<strong>${region.nom}:</strong> Score ${region.score} (${niveau}) — ${seuil}`;
+                        prioriteContainer.appendChild(alertDiv);
+                    });
+                }
+
+                // Charger alertes actives
+                const alertesResponse = await fetch('/api/alertes/actives');
+                const alertesActives = await alertesResponse.json();
+                const alertesActivesList = document.getElementById('alertes-actives-list');
+                alertesActivesList.innerHTML = '';
+
+                if (alertesActives.length === 0) {
+                    alertesActivesList.innerHTML = '<p>Aucune alerte active.</p>';
+                } else {
+                    alertesActives.forEach(alerte => {
+                        const alerteDiv = document.createElement('div');
+                        alerteDiv.className = 'alerte-item';
+                        alerteDiv.innerHTML = `
+                            <strong>${alerte.prenom} — ${alerte.score}</strong>
+                            <div class="alerte-meta">Région: ${alerte.region}</div>
+                            <div class="alerte-meta">Âge: ${alerte.age_mois} mois</div>
+                            <div class="alerte-meta">Signalé: ${new Date(alerte.date_alerte).toLocaleString('fr-FR')}</div>
+                            <div>
+                                <span class="alerte-badge badge-en-cours">EN COURS</span>
+                                <button class="button" data-id="${alerte.id}">Marquer résolu</button>
+                            </div>
+                        `;
+                        alertesActivesList.appendChild(alerteDiv);
+                    });
+                }
+
+                alertesActivesList.querySelectorAll('.button').forEach(button => {
+                    const alerteId = button.getAttribute('data-id');
+                    button.addEventListener('click', async () => {
+                        try {
+                            const res = await fetch(`/api/alertes/${alerteId}/resoudre`, {
+                                method: 'POST'
+                            });
+                            if (!res.ok) {
+                                const err = await res.json();
+                                throw new Error(err.detail || 'Erreur');
+                            }
+                            chargerDonnees();
+                        } catch (error) {
+                            alert('Impossible de résoudre l\'alerte : ' + error.message);
+                        }
+                    });
+                });
+
+                // Charger historique des alertes
+                const historiqueResponse = await fetch('/api/alertes/historique?limite=15');
+                const historique = await historiqueResponse.json();
+                const historiqueTbody = document.getElementById('historique-tbody');
+                historiqueTbody.innerHTML = '';
+
+                historique.forEach(alerte => {
+                    const dateAlerte = new Date(alerte.date_alerte).toLocaleString('fr-FR');
+                    const dateResolution = alerte.date_resolution ? new Date(alerte.date_resolution).toLocaleString('fr-FR') : '-';
+                    const statutBadge = alerte.resolue ? '<span class="alerte-badge badge-resolue">RÉSOLUE</span>' : '<span class="alerte-badge badge-en-cours">EN COURS</span>';
+                    const actionButton = alerte.resolue ? '' : `<button class="button" data-id="${alerte.id}">Marquer résolu</button>`;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${alerte.prenom}</td>
+                        <td>${alerte.region}</td>
+                        <td>${alerte.score}</td>
+                        <td>${statutBadge}</td>
+                        <td>${dateAlerte}</td>
+                        <td>${dateResolution}</td>
+                        <td>${actionButton}</td>
+                    `;
+                    historiqueTbody.appendChild(row);
+                });
+
+                historiqueTbody.querySelectorAll('.button').forEach(button => {
+                    const alerteId = button.getAttribute('data-id');
+                    button.addEventListener('click', async () => {
+                        try {
+                            const res = await fetch(`/api/alertes/${alerteId}/resoudre`, {
+                                method: 'POST'
+                            });
+                            if (!res.ok) {
+                                const err = await res.json();
+                                throw new Error(err.detail || 'Erreur');
+                            }
+                            chargerDonnees();
+                        } catch (error) {
+                            alert('Impossible de résoudre l\'alerte : ' + error.message);
+                        }
+                    });
+                });
+
                 // Charger SMS
                 const smsResponse = await fetch('/api/admin/sms-log?limite=10');
                 const smsList = await smsResponse.json();

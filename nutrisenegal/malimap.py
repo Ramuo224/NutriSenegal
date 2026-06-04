@@ -18,8 +18,13 @@ def calculer_score_risque(region: str, data: Dict) -> float:
     score += min(data.get('pluie_deficit', 0) * 1.5, 30)  
     score += min(data.get('prix_alimentaires_hausse', 0) * 1.5, 20)  
     
-    # Un seul cas NutriScan récent fait maintenant bondir le score de 50 points d'un coup !
-    score += min(data.get('cas_nutriscan_30j', 0) * 50.0, 60)  
+    # Poids clair des alertes NutriScan selon leur sévérité
+    cas_rouge = data.get('cas_rouge_30j', 0)
+    cas_orange = data.get('cas_orange_30j', 0)
+    if cas_rouge > 0:
+        score += min(cas_rouge * 80 + cas_orange * 40, 100)
+    else:
+        score += min(cas_orange * 40, 80)
     
     # Facteurs de protection
     score -= min(data.get('densite_medicale', 0) * 10, 10)  
@@ -35,13 +40,22 @@ def maj_donnees_region(region: str) -> Dict:
     # Compter cas ORANGE/ROUGE des 30 derniers jours
     try:
         cursor.execute('''
-        SELECT COUNT(*) as nb_cas FROM alertes
-        WHERE region = ? AND datetime(date_alerte) >= datetime('now', '-30 days')
+        SELECT
+            SUM(CASE WHEN score = 'ROUGE' THEN 1 ELSE 0 END) as nb_rouge,
+            SUM(CASE WHEN score = 'ORANGE' THEN 1 ELSE 0 END) as nb_orange
+        FROM alertes
+        WHERE region = ? AND resolue = 0
+          AND datetime(date_alerte) >= datetime('now', '-30 days')
         ''', (region,))
-        cas_30j = cursor.fetchone()[0]
+        row = cursor.fetchone()
+        cas_rouge = row[0] or 0
+        cas_orange = row[1] or 0
+        cas_30j = cas_rouge + cas_orange
     except Exception:
         cas_30j = 0
-    
+        cas_rouge = 0
+        cas_orange = 0
+
     # --- TA CONFIGURATION DE DONNÉES JSON INTÉGRÉE ---
     config_brute = {
         "Dakar": {"densite": 2.5, "eau": 95, "critique": False},
@@ -74,6 +88,8 @@ def maj_donnees_region(region: str) -> Dict:
         'pluie_deficit': pluie_def, 
         'prix_alimentaires_hausse': prix_hausse,
         'cas_nutriscan_30j': cas_30j,
+        'cas_rouge_30j': cas_rouge,
+        'cas_orange_30j': cas_orange,
         'densite_medicale': reg_config["densite"],
         'acces_eau_potable': reg_config["eau"]
     }

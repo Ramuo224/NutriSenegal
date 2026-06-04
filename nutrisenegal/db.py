@@ -39,9 +39,19 @@ def init_db():
         date_alerte TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         centre_notifie BOOLEAN DEFAULT 0,
         sms_envoye BOOLEAN DEFAULT 0,
+        resolue BOOLEAN DEFAULT 0,
+        date_resolution TIMESTAMP,
         FOREIGN KEY(enfant_id) REFERENCES enfants(id)
     )
     ''')
+    
+    # Migration automatique si la colonne 'resolue' manque
+    cursor.execute("PRAGMA table_info(alertes)")
+    colonnes_alertes = [row[1] for row in cursor.fetchall()]
+    if 'resolue' not in colonnes_alertes:
+        cursor.execute('ALTER TABLE alertes ADD COLUMN resolue BOOLEAN DEFAULT 0')
+    if 'date_resolution' not in colonnes_alertes:
+        cursor.execute('ALTER TABLE alertes ADD COLUMN date_resolution TIMESTAMP')
     
     # Table abonnees (MamaMenu)
     cursor.execute('''
@@ -132,20 +142,22 @@ def get_connection():
 
 def ajouter_enfant(prenom: str, age_mois: int, region: str, poids_kg: float, 
                    taille_cm: float, perimetre_brachial: Optional[float] = None,
+                   score_risque: Optional[str] = None,
                    agent_id: Optional[int] = None, agent_nom: Optional[str] = None,
                    agent_zone: Optional[str] = None) -> int:
     """Ajouter un enfant à la BDD (NutriScan)."""
     conn = get_connection()
     cursor = conn.cursor()
     
-    # Calcul du score
-    imc = poids_kg / ((taille_cm / 100) ** 2)
-    if imc < 11.5:
-        score_risque = "ROUGE"
-    elif imc < 13.0:
-        score_risque = "ORANGE"
-    else:
-        score_risque = "VERT"
+    # Calcul du score si ce n'est pas fourni par le caller.
+    if score_risque is None:
+        imc = poids_kg / ((taille_cm / 100) ** 2)
+        if imc < 11.5:
+            score_risque = "ROUGE"
+        elif imc < 13.0:
+            score_risque = "ORANGE"
+        else:
+            score_risque = "VERT"
     
     cursor.execute('''
     INSERT INTO enfants (prenom, age_mois, region, poids_kg, taille_cm, 
@@ -159,8 +171,8 @@ def ajouter_enfant(prenom: str, age_mois: int, region: str, poids_kg: float,
     # Créer alerte si score ORANGE ou ROUGE
     if score_risque in ["ORANGE", "ROUGE"]:
         cursor.execute('''
-        INSERT INTO alertes (enfant_id, region, score)
-        VALUES (?, ?, ?)
+        INSERT INTO alertes (enfant_id, region, score, resolue, date_resolution)
+        VALUES (?, ?, ?, 0, NULL)
         ''', (enfant_id, region, score_risque))
     
     conn.commit()
@@ -250,12 +262,67 @@ def get_alertes_recentes(jours: int = 30) -> List[Dict[str, Any]]:
     SELECT a.*, e.prenom, e.poids_kg, e.taille_cm 
     FROM alertes a
     JOIN enfants e ON a.enfant_id = e.id
-    WHERE datetime(a.date_alerte) >= datetime('now', ? || ' days')
+    WHERE a.resolue = 0
+      AND datetime(a.date_alerte) >= datetime('now', ? || ' days')
     ''', (f'-{jours}',))
     
     result = cursor.fetchall()
     conn.close()
     return [dict(r) for r in result]
+
+def get_alertes_actives() -> List[Dict[str, Any]]:
+    """Obtenir alertes actives (non résolues)."""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+    SELECT a.*, e.prenom, e.age_mois, e.region AS region_enfant, e.poids_kg, e.taille_cm
+    FROM alertes a
+    JOIN enfants e ON a.enfant_id = e.id
+    WHERE a.resolue = 0
+    ORDER BY datetime(a.date_alerte) DESC
+    ''')
+
+    result = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in result]
+
+
+def get_alertes_historique(limite: int = 100) -> List[Dict[str, Any]]:
+    """Obtenir l'historique des alertes (résolues ou non)."""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+    SELECT a.*, e.prenom, e.age_mois, e.region AS region_enfant, e.poids_kg, e.taille_cm
+    FROM alertes a
+    JOIN enfants e ON a.enfant_id = e.id
+    ORDER BY datetime(a.date_alerte) DESC
+    LIMIT ?
+    ''', (limite,))
+
+    result = cursor.fetchall()
+    conn.close()
+    return [dict(r) for r in result]
+
+
+def resoudre_alerte(alerte_id: int) -> bool:
+    """Marquer une alerte comme résolue."""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''
+    UPDATE alertes
+    SET resolue = 1,
+        date_resolution = CURRENT_TIMESTAMP
+    WHERE id = ? AND resolue = 0
+    ''', (alerte_id,))
+
+    updated = cursor.rowcount > 0
+    conn.commit()
+    conn.close()
+    return updated
+
 
 def get_abonnees_pour_envoi() -> List[Dict[str, Any]]:
     """Obtenir abonnées pour envoi hebdo."""

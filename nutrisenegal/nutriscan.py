@@ -96,6 +96,7 @@ def enregistrer_enfant(prenom: str, age_mois: int, region: str, poids_kg: float,
         poids_kg=poids_kg,
         taille_cm=taille_cm,
         perimetre_brachial=perimetre_brachial,
+        score_risque=score,
         agent_id=agent_id,
         agent_nom=agent_nom,
         agent_zone=agent_zone

@@ -5,7 +5,7 @@ Point d'entrée unique pour tous les modules
 
 from fastapi import FastAPI, HTTPException, Request, Form
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
@@ -14,7 +14,14 @@ import json
 import os
 
 # Importer tous les modules
-from db import init_db, charger_recettes_depuis_json, charger_regions_depuis_json
+from db import (
+    init_db,
+    charger_recettes_depuis_json,
+    charger_regions_depuis_json,
+    get_alertes_actives,
+    get_alertes_historique,
+    resoudre_alerte
+)
 from nutriscan import enregistrer_enfant, score_risque
 from mamamenù import inscrire_mere, recommander_recette, formater_sms_recette
 from malimap import obtenir_regions_par_risque, maj_donnees_region, generer_geojson_carte
@@ -110,6 +117,11 @@ async def health_check():
         "application": "NutriSénégal",
         "version": "1.0.0"
     }
+
+@app.get("/favicon.ico")
+async def favicon():
+    """Répondre proprement au navigateur lorsque le favicon est demandé."""
+    return Response(status_code=204, media_type="image/x-icon")
 
 # ============================================================================
 # NUTRISCAN — Dépistage
@@ -230,6 +242,24 @@ async def api_malimap_region(nom_region: str):
     result = maj_donnees_region(nom_region)
     return result
 
+@app.get("/api/alertes/actives")
+async def api_alertes_actives():
+    """Obtenir alertes actives non résolues."""
+    return get_alertes_actives()
+
+@app.get("/api/alertes/historique")
+async def api_alertes_historique(limite: int = 50):
+    """Obtenir l'historique des alertes récentes."""
+    return get_alertes_historique(limite)
+
+@app.post("/api/alertes/{alerte_id}/resoudre")
+async def api_resoudre_alerte(alerte_id: int):
+    """Marquer une alerte comme résolue."""
+    succes = resoudre_alerte(alerte_id)
+    if not succes:
+        raise HTTPException(status_code=404, detail="Alerte introuvable ou déjà résolue")
+    return {"succes": True, "alerte_id": alerte_id}
+
 @app.get("/malimap", response_class=HTMLResponse)
 async def page_malimap():
     """Page interactive MaliMap."""
@@ -259,8 +289,8 @@ async def api_admin_stats():
     cursor.execute("SELECT COUNT(*) FROM enfants")
     nb_enfants = cursor.fetchone()[0]
     
-    # Alertes
-    cursor.execute("SELECT COUNT(*) FROM alertes WHERE score IN ('ORANGE', 'ROUGE')")
+    # Alertes actives non résolues
+    cursor.execute("SELECT COUNT(*) FROM alertes WHERE score IN ('ORANGE', 'ROUGE') AND resolue = 0")
     nb_alertes = cursor.fetchone()[0]
     
     # Abonnées
